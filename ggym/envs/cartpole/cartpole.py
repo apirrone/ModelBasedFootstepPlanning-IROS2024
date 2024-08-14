@@ -34,25 +34,30 @@ from isaacgym.torch_utils import *
 from isaacgym import gymtorch, gymapi, gymutil
 
 import torch
-from gym.envs.base.fixed_robot import FixedRobot
+from ggym.envs.base.fixed_robot import FixedRobot
+
 
 class Cartpole(FixedRobot):
-
     def _post_physics_step_callback(self):
         super()._post_physics_step_callback()
-        self.poll_is_upright = torch.cos(self.dof_pos[:,1]) > 0.9
+        self.poll_is_upright = torch.cos(self.dof_pos[:, 1]) > 0.9
 
     def compute_observations(self):
-        self.obs_buf = torch.cat((
-            self.dof_pos,    # [2] "slider_to_cart , cart_to_pole" pos
-            self.dof_vel,    # [2] "slider_to_cart , cart_to_pole" vel
-        ), dim=-1)
-        
+        self.obs_buf = torch.cat(
+            (
+                self.dof_pos,  # [2] "slider_to_cart , cart_to_pole" pos
+                self.dof_vel,  # [2] "slider_to_cart , cart_to_pole" vel
+            ),
+            dim=-1,
+        )
+
         if self.cfg.env.num_critic_obs:
             self.critic_obs_buf = self.obs_buf
-        
+
         if self.add_noise:
-            self.obs_buf += (2*torch.rand_like(self.obs_buf) - 1) * self.noise_scale_vec
+            self.obs_buf += (
+                2 * torch.rand_like(self.obs_buf) - 1
+            ) * self.noise_scale_vec
 
     def _get_noise_scale_vec(self):
         noise_vec = torch.zeros_like(self.obs_buf[0])
@@ -61,13 +66,13 @@ class Cartpole(FixedRobot):
         noise_level = self.cfg.noise.noise_level
         noise_vec[:2] = noise_scales.dof_pos * self.obs_scales.dof_pos
         noise_vec[2:] = noise_scales.dof_vel * self.obs_scales.dof_vel
-                
+
         noise_vec = noise_vec * noise_level
         return noise_vec
-    
+
     def _compute_torques(self, actions):
         return torch.clip(actions, -self.torque_limits, self.torque_limits)
-    
+
     def _reward_cart_vel(self):
         return -self.dof_vel[:, 0].square() * self.poll_is_upright
 
@@ -75,4 +80,4 @@ class Cartpole(FixedRobot):
         return -self.dof_vel[:, 1].square() * self.poll_is_upright
 
     def _reward_upright_pole(self):
-        return torch.exp(-torch.square(self.dof_pos[:,1]) / 0.25)
+        return torch.exp(-torch.square(self.dof_pos[:, 1]) / 0.25)

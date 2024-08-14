@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -28,26 +28,46 @@
 #
 # Copyright (c) 2021 ETH Zurich, Nikita Rudin
 
-from gym import LEGGED_GYM_ROOT_DIR, LEGGED_GYM_ENVS_DIR
-from .base.legged_robot import LeggedRobot
+import numpy as np
+import os
+from datetime import datetime
 
-from .pendulum.pendulum import Pendulum
-from .pendulum.pendulum_config import PendulumCfg, PendulumRunnerCfg
+import isaacgym
+from ggym.envs import *
+from ggym.utils import get_args, task_registry, wandb_helper
+from ggym import LEGGED_GYM_ROOT_DIR
+import torch
+from ggym.utils.logging_and_saving import local_code_save_helper, wandb_singleton
 
-from .cartpole.cartpole import Cartpole
-from .cartpole.cartpole_config import CartpoleCfg, CartpoleRunnerCfg
+import wandb
 
-from .humanoid.humanoid_vanilla import HumanoidVanilla
-from .humanoid.humanoid_vanilla_config import HumanoidVanillaCfg, HumanoidVanillaRunnerCfg
-from .humanoid.humanoid_controller import HumanoidController
-from .humanoid.humanoid_controller_config import HumanoidControllerCfg, HumanoidControllerRunnerCfg
 
-from gym.utils.task_registry import task_registry
+def train(args):
+    # * Setup environment and policy_runner
+    env, env_cfg = task_registry.make_env(name=args.task, args=args)
 
-task_registry.register("pendulum", Pendulum, PendulumCfg, PendulumRunnerCfg)
-task_registry.register("cartpole", Cartpole, CartpoleCfg, CartpoleRunnerCfg)
+    policy_runner, train_cfg = task_registry.make_alg_runner(
+        env=env, name=args.task, args=args
+    )
 
-task_registry.register("humanoid_vanilla", HumanoidVanilla, HumanoidVanillaCfg, HumanoidVanillaRunnerCfg)
-task_registry.register("humanoid_controller", HumanoidController, HumanoidControllerCfg, HumanoidControllerRunnerCfg)
-                      
+    # * Setup wandb
+    wandb_helper = wandb_singleton.WandbSingleton()
+    wandb_helper.setup_wandb(
+        env_cfg=env_cfg, train_cfg=train_cfg, args=args, log_dir=policy_runner.log_dir
+    )
+    local_code_save_helper.log_and_save(env, env_cfg, train_cfg, policy_runner)
+    wandb_helper.attach_runner(policy_runner=policy_runner)
 
+    # * Train
+    policy_runner.learn(
+        num_learning_iterations=train_cfg.runner.max_iterations,
+        init_at_random_ep_len=True,
+    )
+
+    # * Close wandb
+    wandb_helper.close_wandb()
+
+
+if __name__ == "__main__":
+    args = get_args()
+    train(args)

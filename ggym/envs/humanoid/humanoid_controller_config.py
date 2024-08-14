@@ -4,102 +4,100 @@ with potential-based rewards implemented
 """
 
 import torch
-from gym.envs.base.legged_robot_config \
-    import LeggedRobotCfg, LeggedRobotRunnerCfg
+from ggym.envs.base.legged_robot_config import LeggedRobotCfg, LeggedRobotRunnerCfg
 
 
 class HumanoidControllerCfg(LeggedRobotCfg):
     class env(LeggedRobotCfg.env):
-        num_envs = 4096
+        num_envs = 8
         num_actuators = 10
-        episode_length_s = 5 # 100
+        episode_length_s = 5  # 100
 
     class terrain(LeggedRobotCfg.terrain):
         curriculum = False
-        mesh_type = 'plane' # 'plane' 'heightfield' 'trimesh'
-        measure_heights = False # True, False
+        mesh_type = "plane"  # 'plane' 'heightfield' 'trimesh'
+        measure_heights = False  # True, False
         measured_points_x_range = [-0.8, 0.8]
         measured_points_x_num_sample = 33
         measured_points_y_range = [-0.8, 0.8]
-        measured_points_y_num_sample = 33 
-        selected = True # True, False
-        terrain_kwargs = {'type': 'stepping_stones'}
+        measured_points_y_num_sample = 33
+        selected = True  # True, False
+        terrain_kwargs = {"type": "stepping_stones"}
         # terrain_kwargs = {'type': 'random_uniform'}
         # terrain_kwargs = {'type': 'gap'}
         # difficulty = 0.35 # For gap terrain
         # platform_size = 5.5 # For gap terrain
-        difficulty = 5.0 # For rough terrain
-        terrain_length = 18. # For rough terrain
-        terrain_width = 18. # For rough terrain
+        difficulty = 5.0  # For rough terrain
+        terrain_length = 18.0  # For rough terrain
+        terrain_width = 18.0  # For rough terrain
         # terrain types: [pyramid_sloped, random_uniform, stairs down, stairs up, discrete obstacles, stepping_stones, gap, pit]
-        terrain_proportions = [0., 0.5, 0., 0.5, 0., 0., 0.]
-
+        terrain_proportions = [0.0, 0.5, 0.0, 0.5, 0.0, 0.0, 0.0]
 
     class init_state(LeggedRobotCfg.init_state):
         # reset_mode = 'reset_to_range' # 'reset_to_basic'
-        reset_mode = 'reset_to_basic' # 'reset_to_basic'
-        pos = [0., 0., 0.62]        # x,y,z [m]
+        reset_mode = "reset_to_basic"  # 'reset_to_basic'
+        pos = [0.0, 0.0, 0.62]  # x,y,z [m]
         rot = [0.0, 0.0, 0.0, 1.0]  # x,y,z,w [quat]
-        lin_vel = [0.0, 0.0, 0.0]   # x,y,z [m/s]
-        ang_vel = [0.0, 0.0, 0.0]   # x,y,z [rad/s]
+        lin_vel = [0.0, 0.0, 0.0]  # x,y,z [m/s]
+        ang_vel = [0.0, 0.0, 0.0]  # x,y,z [rad/s]
 
         # ranges for [x, y, z, roll, pitch, yaw]
         root_pos_range = [
-            [0., 0.],  # x
-            [0., 0.],  # y
+            [0.0, 0.0],  # x
+            [0.0, 0.0],  # y
             [0.62, 0.62],  # z
-            [-torch.pi/10, torch.pi/10],  # roll
-            [-torch.pi/10, torch.pi/10],  # pitch
-            [-torch.pi/10, torch.pi/10]   # yaw
+            [-torch.pi / 10, torch.pi / 10],  # roll
+            [-torch.pi / 10, torch.pi / 10],  # pitch
+            [-torch.pi / 10, torch.pi / 10],  # yaw
         ]
 
         # ranges for [v_x, v_y, v_z, w_x, w_y, w_z]
         root_vel_range = [
-            [-.5, .5],  # x
-            [-.5, .5],  # y
-            [-.5, .5],  # z
-            [-.5, .5],  # roll
-            [-.5, .5],  # pitch
-            [-.5, .5]   # yaw
+            [-0.5, 0.5],  # x
+            [-0.5, 0.5],  # y
+            [-0.5, 0.5],  # z
+            [-0.5, 0.5],  # roll
+            [-0.5, 0.5],  # pitch
+            [-0.5, 0.5],  # yaw
         ]
 
         default_joint_angles = {
-            '01_right_hip_yaw': 0.,
-            '02_right_hip_abad': 0.1,
-            '03_right_hip_pitch': -0.667751,
-            '04_right_knee': 1.4087,  # 0.6
-            '05_right_ankle': -0.708876,
-            '06_left_hip_yaw': 0.,
-            '07_left_hip_abad': 0.1,
-            '08_left_hip_pitch': -0.667751,
-            '09_left_knee': 1.4087,  # 0.6
-            '10_left_ankle': -0.708876,
+            "01_right_hip_yaw": 0.0,
+            "02_right_hip_abad": 0.1,
+            "03_right_hip_pitch": -0.667751,
+            "04_right_knee": 1.4087,  # 0.6
+            "05_right_ankle": -0.708876,
+            "06_left_hip_yaw": 0.0,
+            "07_left_hip_abad": 0.1,
+            "08_left_hip_pitch": -0.667751,
+            "09_left_knee": 1.4087,  # 0.6
+            "10_left_ankle": -0.708876,
         }
 
         dof_pos_range = {
-            '01_right_hip_yaw': [-0.1, 0.1],
-            '02_right_hip_abad': [-0.1, 0.3],
-            '03_right_hip_pitch': [-0.8, -0.4],
-            '04_right_knee': [1.3, 1.5],
-            '05_right_ankle': [-0.9, -0.5],
-            '06_left_hip_yaw': [-0.1, 0.1],
-            '07_left_hip_abad': [-0.1, 0.3],
-            '08_left_hip_pitch': [-0.8, -0.4],
-            '09_left_knee': [1.3, 1.5],
-            '10_left_ankle': [-0.9, -0.5],
+            "01_right_hip_yaw": [-0.1, 0.1],
+            "02_right_hip_abad": [-0.1, 0.3],
+            "03_right_hip_pitch": [-0.8, -0.4],
+            "04_right_knee": [1.3, 1.5],
+            "05_right_ankle": [-0.9, -0.5],
+            "06_left_hip_yaw": [-0.1, 0.1],
+            "07_left_hip_abad": [-0.1, 0.3],
+            "08_left_hip_pitch": [-0.8, -0.4],
+            "09_left_knee": [1.3, 1.5],
+            "10_left_ankle": [-0.9, -0.5],
         }
 
         dof_vel_range = {
-            '01_right_hip_yaw': [-0.1, 0.1],
-            '02_right_hip_abad': [-0.1, 0.1],
-            '03_right_hip_pitch': [-0.1, 0.1],
-            '04_right_knee': [-0.1, 0.1],
-            '05_right_ankle': [-0.1, 0.1],
-            '06_left_hip_yaw': [-0.1, 0.1],
-            '07_left_hip_abad': [-0.1, 0.1],
-            '08_left_hip_pitch': [-0.1, 0.1],
-            '09_left_knee': [-0.1, 0.1],
-            '10_left_ankle': [-0.1, 0.1],
+            "01_right_hip_yaw": [-0.1, 0.1],
+            "02_right_hip_abad": [-0.1, 0.1],
+            "03_right_hip_pitch": [-0.1, 0.1],
+            "04_right_knee": [-0.1, 0.1],
+            "05_right_ankle": [-0.1, 0.1],
+            "06_left_hip_yaw": [-0.1, 0.1],
+            "07_left_hip_abad": [-0.1, 0.1],
+            "08_left_hip_pitch": [-0.1, 0.1],
+            "09_left_knee": [-0.1, 0.1],
+            "10_left_ankle": [-0.1, 0.1],
         }
 
     # class init_state(LeggedRobotCfg.init_state):
@@ -171,16 +169,16 @@ class HumanoidControllerCfg(LeggedRobotCfg):
     class control(LeggedRobotCfg.control):
         # stiffness and damping for joints
         stiffness = {
-            '01_right_hip_yaw': 30.,
-            '02_right_hip_abad': 30.,
-            '03_right_hip_pitch': 30.,
-            '04_right_knee': 30.,
-            '05_right_ankle': 30.,
-            '06_left_hip_yaw': 30.,
-            '07_left_hip_abad': 30.,
-            '08_left_hip_pitch': 30.,
-            '09_left_knee': 30.,
-            '10_left_ankle': 30.,
+            "01_right_hip_yaw": 30.0,
+            "02_right_hip_abad": 30.0,
+            "03_right_hip_pitch": 30.0,
+            "04_right_knee": 30.0,
+            "05_right_ankle": 30.0,
+            "06_left_hip_yaw": 30.0,
+            "07_left_hip_abad": 30.0,
+            "08_left_hip_pitch": 30.0,
+            "09_left_knee": 30.0,
+            "10_left_ankle": 30.0,
         }
         # damping = {
         #     '01_right_hip_yaw': 3.,
@@ -195,16 +193,16 @@ class HumanoidControllerCfg(LeggedRobotCfg):
         #     '10_left_ankle': 3.
         # }
         damping = {
-            '01_right_hip_yaw': 1.,
-            '02_right_hip_abad': 1.,
-            '03_right_hip_pitch': 1.,
-            '04_right_knee': 1.,
-            '05_right_ankle': 1.,
-            '06_left_hip_yaw': 1.,
-            '07_left_hip_abad': 1.,
-            '08_left_hip_pitch': 1.,
-            '09_left_knee': 1.,
-            '10_left_ankle': 1.
+            "01_right_hip_yaw": 1.0,
+            "02_right_hip_abad": 1.0,
+            "03_right_hip_pitch": 1.0,
+            "04_right_knee": 1.0,
+            "05_right_ankle": 1.0,
+            "06_left_hip_yaw": 1.0,
+            "07_left_hip_abad": 1.0,
+            "08_left_hip_pitch": 1.0,
+            "09_left_knee": 1.0,
+            "10_left_ankle": 1.0,
         }
 
         actuation_scale = 1.0
@@ -213,14 +211,14 @@ class HumanoidControllerCfg(LeggedRobotCfg):
 
     class commands(LeggedRobotCfg.commands):
         curriculum = False
-        max_curriculum = 1.
-        num_commands = 3  
-        resampling_time = 10. # 5.
+        max_curriculum = 1.0
+        num_commands = 3
+        resampling_time = 10.0  # 5.
 
         succeed_step_radius = 0.03
         succeed_step_angle = 10
         apex_height_percentage = 0.15
-        
+
         sample_angle_offset = 20
         sample_radius_offset = 0.05
 
@@ -229,21 +227,21 @@ class HumanoidControllerCfg(LeggedRobotCfg):
 
         class ranges(LeggedRobotCfg.commands.ranges):
             # TRAINING STEP COMMAND RANGES #
-            sample_period = [35, 36] # [20, 21] # equal to gait frequency
-            dstep_width = [0.3, 0.3] # [0.2, 0.4] # min max [m]
+            sample_period = [35, 36]  # [20, 21] # equal to gait frequency
+            dstep_width = [0.3, 0.3]  # [0.2, 0.4] # min max [m]
 
-            lin_vel_x = [-3.0, 3.0] # min max [m/s]
-            lin_vel_y = 1.5 # min max [m/s]
-            lin_vel_x = [-2.0, 2.0] # [-3.0, 3.0] # min max [m/s]
-            lin_vel_y = 2. # 1.5   # min max [m/s]
-            yaw_vel = 0.    # min max [rad/s]
+            lin_vel_x = [-3.0, 3.0]  # min max [m/s]
+            lin_vel_y = 1.5  # min max [m/s]
+            lin_vel_x = [-2.0, 2.0]  # [-3.0, 3.0] # min max [m/s]
+            lin_vel_y = 2.0  # 1.5   # min max [m/s]
+            yaw_vel = 0.0  # min max [rad/s]
 
     class domain_rand(LeggedRobotCfg.domain_rand):
-        randomize_friction = True # True, False
+        randomize_friction = True  # True, False
         friction_range = [0.5, 1.25]
 
-        randomize_base_mass = True # True, False
-        added_mass_range = [-1., 1.]
+        randomize_base_mass = True  # True, False
+        added_mass_range = [-1.0, 1.0]
 
         push_robots = True
         push_interval_s = 2.5
@@ -252,22 +250,22 @@ class HumanoidControllerCfg(LeggedRobotCfg):
         # Add DR for rotor inertia and angular damping
 
     class asset(LeggedRobotCfg.asset):
-        file = '{LEGGED_GYM_ROOT_DIR}/resources/robots/humanoid/urdf/humanoid_fixed_arms_sf_update.urdf'
+        file = "{LEGGED_GYM_ROOT_DIR}/resources/robots/humanoid/urdf/humanoid_fixed_arms_sf_update.urdf"
         keypoints = ["base"]
-        end_effectors = ['right_foot', 'left_foot']
-        foot_name = 'foot'
+        end_effectors = ["right_foot", "left_foot"]
+        foot_name = "foot"
         terminate_after_contacts_on = [
-            'base',
-            'right_upper_leg',
-            'right_lower_leg',
-            'left_upper_leg',
-            'left_lower_leg',
-            'right_upper_arm',
-            'right_lower_arm',
-            'right_hand',
-            'left_upper_arm',
-            'left_lower_arm',
-            'left_hand',
+            "base",
+            "right_upper_leg",
+            "right_lower_leg",
+            "left_upper_leg",
+            "left_lower_leg",
+            "right_upper_arm",
+            "right_lower_arm",
+            "right_hand",
+            "left_upper_arm",
+            "left_lower_arm",
+            "left_hand",
         ]
 
         disable_gravity = False
@@ -285,30 +283,30 @@ class HumanoidControllerCfg(LeggedRobotCfg):
 
         angular_damping = 0.1
         rotor_inertia = [
-            0.01188,    # RIGHT LEG
+            0.01188,  # RIGHT LEG
             0.01188,
             0.01980,
             0.07920,
             0.04752,
-            0.01188,    # LEFT LEG
+            0.01188,  # LEFT LEG
             0.01188,
             0.01980,
             0.07920,
             0.04752,
         ]
-        apply_humanoid_jacobian = True # True, False
+        apply_humanoid_jacobian = True  # True, False
 
     class rewards(LeggedRobotCfg.rewards):
         base_height_target = 0.62
         soft_dof_pos_limit = 0.9
         soft_dof_vel_limit = 0.9
         soft_torque_limit = 0.8
-        max_contact_force = 1500.
+        max_contact_force = 1500.0
 
         curriculum = False
         only_positive_rewards = False
         tracking_sigma = 0.25
-        
+
         class weights(LeggedRobotCfg.rewards.weights):
             # * Regularization rewards * #
             actuation_rate = 1e-3
@@ -321,63 +319,67 @@ class HumanoidControllerCfg(LeggedRobotCfg):
             torque_limits = 1e-2
 
             # * Floating base rewards * #
-            base_height = 1.
-            base_heading = 3.
-            base_z_orientation = 1.
-            tracking_lin_vel_world = 4.
+            base_height = 1.0
+            base_heading = 3.0
+            base_z_orientation = 1.0
+            tracking_lin_vel_world = 4.0
 
             # * Stepping rewards * #
-            joint_regularization = 1.
-            contact_schedule = 3.
+            joint_regularization = 1.0
+            contact_schedule = 3.0
 
         class termination_weights(LeggedRobotCfg.rewards.termination_weights):
-            termination = 1.
+            termination = 1.0
 
     class scaling(LeggedRobotCfg.scaling):
-        base_height = 1.
-        base_lin_vel = 1. #.5
-        base_ang_vel = 1. #2.
-        projected_gravity = 1.
-        foot_states_right = 1.
-        foot_states_left = 1.
-        dof_pos = 1.
-        dof_vel = 1. #.1
+        base_height = 1.0
+        base_lin_vel = 1.0  # .5
+        base_ang_vel = 1.0  # 2.
+        projected_gravity = 1.0
+        foot_states_right = 1.0
+        foot_states_left = 1.0
+        dof_pos = 1.0
+        dof_vel = 1.0  # .1
         dof_pos_target = dof_pos  # scale by range of motion
 
         # Action scales
-        commands = 1.
-        clip_actions = 10.
+        commands = 1.0
+        clip_actions = 10.0
 
 
 class HumanoidControllerRunnerCfg(LeggedRobotRunnerCfg):
     do_wandb = True
     seed = -1
+
     class policy(LeggedRobotRunnerCfg.policy):
         init_noise_std = 1.0
         actor_hidden_dims = [256, 256, 256]
         critic_hidden_dims = [256, 256, 256]
         # (elu, relu, selu, crelu, lrelu, tanh, sigmoid)
-        activation = 'elu'
-        normalize_obs = True # True, False
-        
-        actor_obs = ["base_height",
-                     "base_lin_vel_world", # "base_lin_vel",
-                     "base_heading",
-                     "base_ang_vel",
-                     "projected_gravity",
-                     "foot_states_right",
-                     "foot_states_left",
-                     "step_commands_right",
-                     "step_commands_left",
-                     "commands",
-                     "phase_sin",
-                     "phase_cos",
-                     "dof_pos",
-                     "dof_vel",]
+        activation = "elu"
+        normalize_obs = True  # True, False
+
+        actor_obs = [
+            "base_height",
+            "base_lin_vel_world",  # "base_lin_vel",
+            "base_heading",
+            "base_ang_vel",
+            "projected_gravity",
+            "foot_states_right",
+            "foot_states_left",
+            "step_commands_right",
+            "step_commands_left",
+            "commands",
+            "phase_sin",
+            "phase_cos",
+            "dof_pos",
+            "dof_vel",
+        ]
 
         critic_obs = actor_obs
 
         actions = ["dof_pos_target"]
+
         class noise:
             base_height = 0.05
             base_lin_vel = 0.05
@@ -402,21 +404,21 @@ class HumanoidControllerRunnerCfg(LeggedRobotRunnerCfg):
             clip_param = 0.2
             entropy_coef = 0.01
             num_learning_epochs = 5
-            num_mini_batches = 4    # minibatch size = num_envs*nsteps/nminibatches
-            learning_rate = 1.e-5
-            schedule = 'adaptive'   # could be adaptive, fixed
+            num_mini_batches = 4  # minibatch size = num_envs*nsteps/nminibatches
+            learning_rate = 1.0e-5
+            schedule = "adaptive"  # could be adaptive, fixed
             gamma = 0.99
             lam = 0.95
             desired_kl = 0.01
-            max_grad_norm = 1.
+            max_grad_norm = 1.0
 
     class runner(LeggedRobotRunnerCfg.runner):
-        policy_class_name = 'ActorCritic'
-        algorithm_class_name = 'PPO'
+        policy_class_name = "ActorCritic"
+        algorithm_class_name = "PPO"
         num_steps_per_env = 24
         max_iterations = 5000
-        run_name = 'sf'
-        experiment_name = 'Humanoid_Controller'
+        run_name = "sf"
+        experiment_name = "Humanoid_Controller"
         save_interval = 100
         plot_input_gradients = False
         plot_parameter_gradients = False
