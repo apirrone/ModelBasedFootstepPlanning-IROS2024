@@ -382,9 +382,9 @@ class LeggedRobot(BaseTask):
 
         # set small commands to zero
         self.commands[env_ids, :2] *= (
-            torch.norm(self.commands[env_ids, :2], dim=1) > 0.2
+            torch.norm(self.commands[env_ids, :2], dim=1) > 0.01
         ).unsqueeze(1)
-        self.commands[env_ids, 2] *= torch.abs(self.commands[env_ids, 2]) > 0.2
+        self.commands[env_ids, 2] *= torch.abs(self.commands[env_ids, 2]) > 0.01
 
     def _compute_torques(self):
         """Compute torques from actuations.
@@ -910,7 +910,10 @@ class LeggedRobot(BaseTask):
         self.dof_names = self.gym.get_asset_dof_names(robot_asset)
         self.dof_idx = {name: i for i, name in enumerate(self.dof_names)}
         self.num_bodies = len(body_names)
-        feet_names = [s for s in body_names if self.cfg.asset.foot_name in s]
+        # feet_names = [s for s in body_names if self.cfg.asset.foot_name in s]
+        feet_names = ["left_foot", "right_foot"]
+        # print(feet_names)
+        # exit()
         penalized_contact_names = []
         for name in self.cfg.asset.penalize_contacts_on:
             penalized_contact_names.extend([s for s in body_names if name in s])

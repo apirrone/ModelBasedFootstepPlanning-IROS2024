@@ -48,6 +48,9 @@ from .humanoid.humanoid_controller_config import (
     HumanoidControllerRunnerCfg,
 )
 
+from .bdx.bdx_controller import BdxController
+from .bdx.bdx_controller_config import BdxControllerCfg, BdxControllerRunnerCfg
+
 from ggym.utils.task_registry import task_registry
 
 task_registry.register("pendulum", Pendulum, PendulumCfg, PendulumRunnerCfg)
@@ -61,4 +64,8 @@ task_registry.register(
     HumanoidController,
     HumanoidControllerCfg,
     HumanoidControllerRunnerCfg,
+)
+
+task_registry.register(
+    "bdx_controller", BdxController, BdxControllerCfg, BdxControllerRunnerCfg
 )
